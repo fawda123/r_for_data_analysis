@@ -1,0 +1,1155 @@
+\documentclass[xcolor=svgnames]{beamer}
+\usetheme{Boadilla}
+\usecolortheme[named=ForestGreen]{structure}
+\usepackage{graphicx}
+\usepackage[final]{animate}
+%\usepackage[colorlinks=true,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\usepackage{breqn}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{shadows,arrows,positioning}
+\usepackage[noae]{Sweave}
+\definecolor{links}{HTML}{2A1B81}
+\hypersetup{colorlinks,linkcolor=links,urlcolor=links}
+\usepackage{pgfpages}
+%\pgfpagesuselayout{4 on 1}[letterpaper, border shrink = 5mm, landscape]
+
+\tikzstyle{block} = [rectangle, draw, text width=7em, text centered, rounded corners, minimum height=3em, minimum width=7em, top color = white, bottom color=green!30,  drop shadow]
+
+\begin{document}
+
+
+\title[R for Data Analysis]{\includegraphics[width=0.07\textwidth]{Rlogo.jpg} \hspace{0.2em} for Data Analysis}
+\author[M. Beck and S. Berg]{Marcus W. Beck \and Sergey Berg}
+
+\institute[UofM]{Department of Fisheries, Wildlife, and Conservation Biology \\ University of Minnesota, Twin Cities}
+
+\date{May 21, 2013}
+
+\titlegraphic{
+\centerline{
+\begin{tikzpicture}
+  \node[fill=white,draw] at (0,0) {\includegraphics[width=0.6\textwidth]{peeper.jpg}};
+\end{tikzpicture}}
+}
+
+%%%%%%
+\begin{frame}
+\vspace{-0.3in}
+\titlepage
+\end{frame}
+
+\section{Background}
+
+%%%%%%
+\begin{frame}{What you'll learn about \hspace{0.2em}\includegraphics[width=0.07\textwidth]{Rlogo.jpg}}
+\setbeamercovered{again covered={\opaqueness<1->{25}}}
+\begin{itemize}
+\itemsep20pt
+\item Data organization
+\item Data exploration and visualization
+\begin{itemize}
+\item Common functions
+\item Graphing tools
+\end{itemize}
+\item Data analysis and hypothesis testing
+\begin{itemize}
+\item Common functions
+\item Evaluation of output 
+\item Graphing tools \\~\\
+\end{itemize}
+\end{itemize}
+
+\Large
+\centerline{\emph{Interactive! Interrupt me!}}
+\end{frame}
+
+\section{Data organization}
+
+%%%%%%
+\begin{frame}[fragile]{Data organization}
+We'll use the same dataset we used in Excel, replicating the analyses\\~\\
+First we have to import the data into our R `workspace' \\~\\
+The workspace is a group of R objects that are loaded for our current session \\~\\
+Data are loaded into the workspace by importing (or making within R) and assigning them to a variable (object) with a name of our choosing\\~\\
+We can see what's loaded in our workspace:\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> a<-c(1,2)
+> ls()
+\end{Sinput}
+\begin{Soutput}
+[1] "a"
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data organization}
+\onslide<+->{Import the data following this workflow:}\\~\\
+\begin{center}
+\begin{tikzpicture}[node distance=2.5cm, auto, >=stealth]
+	\node[block] (a) {1. Open data in Excel and clean};
+	\node[block] (b)  [right of=a, node distance=4.2cm] {2. Save data in `.csv' format};
+ 	\draw[->] (a) -- (b);
+ 	\node[block] (c)  [right of=b, node distance=4.2cm]  {3. Import in R using 'read.csv'};
+ 	\draw[->] (b) -- (c);
+\end{tikzpicture}
+\end{center}
+\begin{columns}[t]
+\begin{column}{0.33\textwidth}
+\begin{itemize}
+\item Column names should be simple
+\item Ensure all data will be easy to read
+\end{itemize}
+\end{column}
+\begin{column}{0.33\textwidth}
+\begin{itemize}
+\item File, Save as .csv
+\item Creates a comma separated file that looks like a spreadsheet
+\item One spreadsheet at a time
+\end{itemize}
+\end{column}
+\begin{column}{0.33\textwidth}
+\begin{itemize}
+\item header = T
+\item See ?read.csv for list of function options
+\item Remember to assign a name
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile,shrink]{Data organization}
+If the data are a text file... open the text file, how are the columns separated?
+\begin{itemize}
+\item comma
+\item tabs
+\item space
+\item arbitrary character\\~\\
+\end{itemize}
+
+Use the read.table function and identify the column delimiter:
+\begin{Schunk}
+\begin{Sinput}
+> setwd('C:/Documents/monitoring_workshop')
+> ls() 
+\end{Sinput}
+\begin{Soutput}
+[1] "a"
+\end{Soutput}
+\begin{Sinput}
+> dat<-read.table('RWBB Survey.txt',sep='\t',header=T)
+> ls() 
+\end{Sinput}
+\begin{Soutput}
+[1] "a"   "dat"
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data organization}
+Now that the data are in our workspace, let's explore!\\~\\
+Did the data import correctly (rarely a problem)?\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> head(dat) #or tail(dat)
+\end{Sinput}
+\end{Schunk}
+\scriptsize
+\begin{Schunk}
+\begin{Soutput}
+  SiteName Year Restoration Reference   ObserverNames Precipitation Temperature
+1      IGH 2005           3         3    Tyler_Amanda             0          48
+2    Kelly 2005           4         2 Patrick_Chelsea             0          48
+3  Carlton 2005           2         3     David_Megan             0          48
+4      IGH 2006           9         6    Tyler_Amanda             0          52
+5    Kelly 2006           9         1     David_Megan             0          52
+6  Carlton 2006           7         3 Patrick_Chelsea             0          52
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+\section{Data exploration}
+
+%%%%%%
+\begin{frame}[fragile]{Data exploration}
+What object class is the data?
+\begin{Schunk}
+\begin{Sinput}
+> class(dat)
+\end{Sinput}
+\begin{Soutput}
+[1] "data.frame"
+\end{Soutput}
+\end{Schunk}
+What are the dimensions of the data frame?
+\begin{Schunk}
+\begin{Sinput}
+> dim(dat)
+\end{Sinput}
+\begin{Soutput}
+[1] 18  7
+\end{Soutput}
+\begin{Sinput}
+> nrow(dat)
+\end{Sinput}
+\begin{Soutput}
+[1] 18
+\end{Soutput}
+\begin{Sinput}
+> ncol(dat)
+\end{Sinput}
+\begin{Soutput}
+[1] 7
+\end{Soutput}
+\end{Schunk}
+The data contain 18 rows and 7 columns, is this correct?
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data exploration}
+Can we get a summary of the data frame?
+\begin{Schunk}
+\begin{Sinput}
+> summary(dat)
+\end{Sinput}
+\begin{Soutput}
+    SiteName      Year       Restoration      Reference     
+ Carlton:6   Min.   :2005   Min.   : 2.00   Min.   : 1.000  
+ IGH    :6   1st Qu.:2006   1st Qu.: 7.50   1st Qu.: 2.250  
+ Kelly  :6   Median :2008   Median :11.50   Median : 3.000  
+             Mean   :2008   Mean   :11.11   Mean   : 4.389  
+             3rd Qu.:2009   3rd Qu.:14.75   3rd Qu.: 5.000  
+             Max.   :2010   Max.   :24.00   Max.   :18.000  
+         ObserverNames Precipitation  Temperature   
+ David_Megan    :6     Min.   : 0    Min.   :41.00  
+ Jeremy_Lucy    :1     1st Qu.: 0    1st Qu.:48.00  
+ Patrick_Chelsea:6     Median : 0    Median :53.00  
+ Tyler_Amanda   :5     Mean   : 2    Mean   :51.83  
+                       3rd Qu.: 0    3rd Qu.:55.00  
+                       Max.   :12    Max.   :61.00  
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data exploration}
+Individual summmaries of variables are also possible\\~\\
+How do we obtain variables of interest?
+\small
+\begin{Schunk}
+\begin{Sinput}
+> names(dat)
+\end{Sinput}
+\begin{Soutput}
+[1] "SiteName"      "Year"          "Restoration"   "Reference"    
+[5] "ObserverNames" "Precipitation" "Temperature"  
+\end{Soutput}
+\end{Schunk}
+
+\normalsize
+We can get a variable directly using \$ or via indexing with [,]
+\small
+\begin{Schunk}
+\begin{Sinput}
+> dat$Temperature
+\end{Sinput}
+\begin{Soutput}
+ [1] 48 48 48 52 52 52 41 41 41 54 54 54 55 55 55 61 61 61
+\end{Soutput}
+\begin{Sinput}
+> dat[,'Temperature'] #same as dat[,7]
+\end{Sinput}
+\begin{Soutput}
+ [1] 48 48 48 52 52 52 41 41 41 54 54 54 55 55 55 61 61 61
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data exploration}
+Just as we had summaries of the data frame, we can get summaries of individual variables
+\begin{Schunk}
+\begin{Sinput}
+> summary(dat$Temperature)
+\end{Sinput}
+\begin{Soutput}
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  41.00   48.00   53.00   51.83   55.00   61.00 
+\end{Soutput}
+\end{Schunk}
+Or more simplistically...
+\begin{Schunk}
+\begin{Sinput}
+> mean(dat$Temperature)
+\end{Sinput}
+\begin{Soutput}
+[1] 51.83333
+\end{Soutput}
+\begin{Sinput}
+> range(dat$Temperature)
+\end{Sinput}
+\begin{Soutput}
+[1] 41 61
+\end{Soutput}
+\begin{Sinput}
+> unique(dat$Temperature)
+\end{Sinput}
+\begin{Soutput}
+[1] 48 52 41 54 55 61
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data exploration}
+Note that the classes of our variables affect how R functions interpet them\\~\\
+For example, the summary function returns different information...\\~\\
+\small
+\begin{Schunk}
+\begin{Sinput}
+> class(dat$Temperature)
+\end{Sinput}
+\begin{Soutput}
+[1] "integer"
+\end{Soutput}
+\begin{Sinput}
+> summary(dat$Temperature)
+\end{Sinput}
+\begin{Soutput}
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  41.00   48.00   53.00   51.83   55.00   61.00 
+\end{Soutput}
+\begin{Sinput}
+> class(dat$SiteName)
+\end{Sinput}
+\begin{Soutput}
+[1] "factor"
+\end{Soutput}
+\begin{Sinput}
+> summary(dat$SiteName)
+\end{Sinput}
+\begin{Soutput}
+Carlton     IGH   Kelly 
+      6       6       6 
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile,t]{Data exploration}
+What about site-specific evaluations?  What if we want to look at the temperature only at Kelly?\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> Kelly<-subset(dat, dat$SiteName=='Kelly')
+\end{Sinput}
+\end{Schunk}
+\vspace{0.2in}
+We've created a new object in our workspace that is our original data frame with sites only from Kelly\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> dim(Kelly)
+\end{Sinput}
+\begin{Soutput}
+[1] 6 7
+\end{Soutput}
+\begin{Sinput}
+> Kelly$SiteName
+\end{Sinput}
+\begin{Soutput}
+[1] Kelly Kelly Kelly Kelly Kelly Kelly
+Levels: Carlton IGH Kelly
+\end{Soutput}
+\end{Schunk}
+
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile,t]{Data exploration}
+What about site-specific evaluations?  What if we want to look at the temperature only at Kelly?\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> Kelly<-subset(dat, dat$SiteName=='Kelly')
+\end{Sinput}
+\end{Schunk}
+\vspace{0.2in}
+Now we can evaluate the temperature, for example, only at Kelly\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> mean(Kelly$Temperature) #this is the same as all sites
+\end{Sinput}
+\begin{Soutput}
+[1] 51.83333
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data exploration}
+What abour our restoration project?  Aren't we comparing the abundances of breeding birds between restored and reference sites? \\~\\
+Let's start with our reference sites...
+\begin{Schunk}
+\begin{Sinput}
+> ref<-dat$Reference
+> summary(ref) #or summary(dat$Reference)
+\end{Sinput}
+\begin{Soutput}
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  1.000   2.250   3.000   4.389   5.000  18.000 
+\end{Soutput}
+\end{Schunk}
+Now the restored sites...
+\begin{Schunk}
+\begin{Sinput}
+> rest<-dat$Restoration
+> summary(rest)
+\end{Sinput}
+\begin{Soutput}
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   2.00    7.50   11.50   11.11   14.75   24.00 
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+\section{Data visualization}
+
+%%%%%%
+\begin{frame}[fragile]{Data visualization}
+Textual summaries of our data are nice, but we should also visualize:
+\begin{itemize}
+\item How are our data distributed?
+\item Are there any outliers or extreme observations?
+\item How do our variables compare (to a reference, to one another, over time, etc.)?\\~\\
+\end{itemize}
+R has many built in functions for data exploration and plotting
+\begin{itemize}
+\item hist - plots a histogram (binned densities of continuous values)
+\item qqplot - comparison of a variable to a normal distribution
+\item barplot - for bar plots...
+\item plot - bivariate comparison of two variables
+\item Much, much more...
+\end{itemize}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data visualization}
+Let's examine the distribution of abundances for the breeding birds at our reference site\\~\\
+\begin{columns}
+\begin{column}{0.6\textwidth}
+\begin{Schunk}
+\begin{Sinput}
+> hist(ref) #or hist(dat$Reference)
+\end{Sinput}
+\end{Schunk}
+\begin{center}
+\includegraphics[width=\textwidth,trim=0in 0in 0.3in 0.3in]{R_for_data_analysis-hist_ref.pdf}
+\end{center}
+\end{column}
+\begin{column}{0.4\textwidth}
+14 of our reference sites have abundances between 0--5 breeding birds
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data visualization}
+How does it compare to our restoration site?\\~\\
+\begin{columns}
+\begin{column}{0.6\textwidth}
+\begin{Schunk}
+\begin{Sinput}
+> hist(rest) #or hist(dat$Restoration)
+\end{Sinput}
+\end{Schunk}
+\begin{center}
+\includegraphics[width=\textwidth,trim=0in 0in 0.3in 0.3in]{R_for_data_analysis-hist_rest.pdf}
+\end{center}
+\end{column}
+\begin{column}{0.4\textwidth}
+Six of our reference sites have abundances between 10--15 breeding birds
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data visualization}
+Now that we've seen the distribution, how can we compare directly?\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> boxplot(ref,rest)
+\end{Sinput}
+\end{Schunk}
+\begin{columns}
+\begin{column}{0.6\textwidth}
+\begin{center}
+\includegraphics[width=\textwidth,trim=0in 0in 0.3in 0.3in]{R_for_data_analysis-box.pdf}
+\end{center}
+\end{column}
+\begin{column}{0.4\textwidth}
+Let's make it look better...
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data visualization}
+Now that we've seen the distribution, how can we compare directly?\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> boxplot(ref,rest,names=c('Reference','Restoration'),
++ 	ylab='Bird abundance',col=c('lightblue','lightgreen'),
++ 	main='Comparison of abundances between sites')
+\end{Sinput}
+\end{Schunk}
+\begin{columns}
+\begin{column}{0.6\textwidth}
+\begin{center}
+\includegraphics[width=\textwidth,trim=0in 0in 0.3in 0.3in]{R_for_data_analysis-box2.pdf}
+\end{center}
+\end{column}
+\begin{column}{0.4\textwidth}
+Dark line is median, box is 25$^{th}$ to 75$^{th}$ quartile (or IQR), whiskers are 1.5 $\times$ IQR\\~\\
+Beyond can be considered outliers...
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data visualization}
+What's going on with the outlier at our reference site?  How can we identify it? \\~\\
+We can use the boxplot function for the dirty work...\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> myplot<-boxplot(ref,rest)
+> myplot$out
+\end{Sinput}
+\begin{Soutput}
+[1] 18
+\end{Soutput}
+\end{Schunk}
+\vspace{0.2in}
+This gives us the actual value, now we need to find it in our data frame \\~\\
+\begin{Schunk}
+\begin{Sinput}
+> outlier<-myplot$out
+> out.row<-which(ref==outlier) 
+> out.row #this is the row number
+\end{Sinput}
+\begin{Soutput}
+[1] 8
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data visualization}
+\begin{Schunk}
+\begin{Sinput}
+> dat[out.row,] #same as dat[8,]
+\end{Sinput}
+\end{Schunk}
+\scriptsize
+\begin{Schunk}
+\begin{Soutput}
+  SiteName Year Restoration Reference ObserverNames Precipitation Temperature
+8    Kelly 2007           2        18   Jeremy_Lucy            12          41
+\end{Soutput}
+\end{Schunk}
+\vspace{0.2in}
+\normalsize
+Now we know that our outlier was from Kelly in 2007...\\~\\
+What's odd about this record? \\~\\
+Let's look at our records from Kelly...\\~\\
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data visualization}
+\begin{Schunk}
+\begin{Sinput}
+> Kelly
+\end{Sinput}
+\end{Schunk}
+\scriptsize
+\begin{Schunk}
+\begin{Soutput}
+   SiteName Year Restoration Reference   ObserverNames Precipitation
+2     Kelly 2005           4         2 Patrick_Chelsea             0
+5     Kelly 2006           9         1     David_Megan             0
+8     Kelly 2007           2        18     Jeremy_Lucy            12
+11    Kelly 2008          14         5     David_Megan             0
+14    Kelly 2009          16         5     David_Megan             0
+17    Kelly 2010          15         3 Patrick_Chelsea             0
+   Temperature
+2           48
+5           52
+8           41
+11          54
+14          55
+17          61
+\end{Soutput}
+\end{Schunk}
+\normalsize
+\vspace{0.2in}
+2007 was cold and rainy, could that have been the reason?\\~\\
+Let's look at 2007 for all sites...
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data visualization}
+\begin{Schunk}
+\begin{Sinput}
+> subset(dat,dat$Year=='2007')
+\end{Sinput}
+\end{Schunk}
+\scriptsize
+\begin{Schunk}
+\begin{Soutput}
+  SiteName Year Restoration Reference   ObserverNames Precipitation Temperature
+7      IGH 2007          12         7     David_Megan            12          41
+8    Kelly 2007           2        18     Jeremy_Lucy            12          41
+9  Carlton 2007          11         2 Patrick_Chelsea            12          41
+\end{Soutput}
+\end{Schunk}
+\normalsize
+\vspace{0.2in}
+IGH and Carlton don't have high abundances at their reference sites during 2007 even though the weather was the same \\~\\
+What else could have caused this outlier?\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> summary(dat$ObserverNames)
+\end{Sinput}
+\end{Schunk}
+\scriptsize
+\begin{Schunk}
+\begin{Soutput}
+    David_Megan     Jeremy_Lucy Patrick_Chelsea    Tyler_Amanda 
+              6               1               6               5 
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data visualization}
+\begin{Schunk}
+\begin{Sinput}
+> summary(dat$ObserverNames)
+\end{Sinput}
+\end{Schunk}
+\scriptsize
+\begin{Schunk}
+\begin{Soutput}
+    David_Megan     Jeremy_Lucy Patrick_Chelsea    Tyler_Amanda 
+              6               1               6               5 
+\end{Soutput}
+\end{Schunk}
+\normalsize
+\vspace{0.2in}
+This is probably Jeremy and/or Lucy's fault, most likely switched the restoration and reference records \\~\\
+What to change?
+
+\begin{Schunk}
+\begin{Sinput}
+> dat[out.row,'Restoration']<-18
+> dat[out.row,'Reference']<-2
+\end{Sinput}
+\end{Schunk}
+Or...
+\begin{Schunk}
+\begin{Sinput}
+> dat<-dat[-out.row,] #do this one
+\end{Sinput}
+\end{Schunk}
+Or...
+fire Jeremy and Lucy.
+\end{frame}
+
+\section{Data analysis and hypothesis testing}
+
+%%%%%%
+\begin{frame}{Data analysis and hypothesis testing}
+Now we need to evaluate the statistical certainty of our data, i.e., are our results due to random chance and how can we quantify this?\\~\\
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{center}
+\includegraphics[width=\textwidth,trim=0in 0in 0.3in 0.3in]{R_for_data_analysis-box2.pdf}
+\end{center}
+\end{column}
+\begin{column}{0.5\textwidth}
+We want to determine if the abundance of birds or variation among sites is actual or random\\~\\
+\end{column}
+\end{columns}
+\centerline{What is an appropriate hypothesis?}
+\end{frame}
+
+
+%%%%%%
+\begin{frame}{Data analysis and hypothesis testing}
+\centerline{What is an appropriate hypothesis? Let's start simple...}
+\vspace{0.2in}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{block}{Null hypothesis}
+The mean abundance of breeding birds at our reference site is zero.
+\end{block}
+\vspace{0.2in}
+\begin{block}{Alternative hypothesis}
+The mean abundance of breeding birds at our reference site is not zero.
+\end{block}
+\end{column}
+\begin{column}{0.5\textwidth}
+\centerline{\includegraphics[width=0.85\textwidth,trim=0in 0.8in 0in 0in]{R_for_data_analysis-hyp1.pdf}}
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[t,fragile]{Data analysis and hypothesis testing}
+The t.test function lets us test this hypothesis, very simple...\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> t.test(dat$Reference)
+\end{Sinput}
+\end{Schunk}
+\small
+\begin{Schunk}
+\begin{Soutput}
+	One Sample t-test
+
+data:  dat$Reference
+t = 7.8998, df = 16, p-value = 6.528e-07
+alternative hypothesis: true mean is not equal to 0
+95 percent confidence interval:
+ 2.625334 4.551137
+sample estimates:
+mean of x 
+ 3.588235 
+\end{Soutput}
+\end{Schunk}
+\normalsize
+\vspace{0.2in}
+What does this mean?  What are default arguments?\\~\\
+\end{frame}
+
+%%%%%%
+\begin{frame}[t]{Data analysis and hypothesis testing}
+Perhaps a one-tailed alternative hypothesis is better, we have prior assumptions about the data...\\~\\
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{block}{Null hypothesis}
+The mean abundance of breeding birds at our reference site is zero.
+\end{block}
+\vspace{0.2in}
+\begin{block}{Alternative hypothesis}
+The mean abundance of breeding birds at our reference site is greater than zero.
+\end{block}
+\end{column}
+\begin{column}{0.5\textwidth}
+\centerline{\includegraphics[width=0.85\textwidth,trim=0in 0.8in 0in 0in]{R_for_data_analysis-hyp1.pdf}}
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+Slight modification of alternative argument for one-tailed test, default is two-tailed\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> t.test(dat$Reference, alternative='greater')
+\end{Sinput}
+\end{Schunk}
+\small
+\begin{Schunk}
+\begin{Soutput}
+	One Sample t-test
+
+data:  dat$Reference
+t = 7.8998, df = 16, p-value = 3.264e-07
+alternative hypothesis: true mean is greater than 0
+95 percent confidence interval:
+ 2.795222      Inf
+sample estimates:
+mean of x 
+ 3.588235 
+\end{Soutput}
+\end{Schunk}
+\normalsize
+What does this mean?
+\end{frame}
+
+
+%%%%%%
+\begin{frame}[t]{Data analysis and hypothesis testing}
+Let's explore more flexibility of the t.test function by changing our basis of comparison for the alternative hypothesis\\~\\
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{block}{Null hypothesis}
+The mean abundance of breeding birds at our reference site is four.
+\end{block}
+\vspace{0.2in}
+\begin{block}{Alternative hypothesis}
+The mean abundance of breeding birds at our reference site is greater than four.
+\end{block}
+\end{column}
+\begin{column}{0.5\textwidth}
+\centerline{\includegraphics[width=0.85\textwidth,trim=0in 0.8in 0in 0in]{R_for_data_analysis-hyp2.pdf}}
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile,t]{Data analysis and hypothesis testing}
+Test a different alternative hypothesis by changing the mu argument\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> t.test(dat$Reference, mu=4, alternative='greater')
+\end{Sinput}
+\end{Schunk}
+\small
+\begin{Schunk}
+\begin{Soutput}
+	One Sample t-test
+
+data:  dat$Reference
+t = -0.9065, df = 16, p-value = 0.8109
+alternative hypothesis: true mean is greater than 4
+95 percent confidence interval:
+ 2.795222      Inf
+sample estimates:
+mean of x 
+ 3.588235 
+\end{Soutput}
+\end{Schunk}
+\normalsize
+What does this mean?
+\end{frame}
+
+%%%%%%
+\begin{frame}{Data analysis and hypothesis testing}
+Now the real question, let's compare our sites to one another...\\~\\
+What are our hypotheses?\\~\\
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{block}{Null hypothesis}
+Differences in the mean abundance between restoration and reference sites is zero.
+\end{block}
+\vspace{0.2in}
+\begin{block}{Alternative hypothesis}
+Differences in the mean abundance between restoration and reference sites will be greater than zero.
+\end{block}
+\end{column}
+\begin{column}{0.5\textwidth}
+\centerline{\includegraphics[width=0.85\textwidth,trim=0in 1in 0.5in 0.5in]{R_for_data_analysis-box2.pdf}}
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+Use the t.test function again as a two-sample test, order matters as do arguments\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> t.test(dat$Restoration,dat$Reference,
++ 	alternative='greater',var.equal=T)
+\end{Sinput}
+\end{Schunk}
+\small
+\begin{Schunk}
+\begin{Soutput}
+	Two Sample t-test
+
+data:  dat$Restoration and dat$Reference
+t = 5.3121, df = 32, p-value = 4.006e-06
+alternative hypothesis: true difference in means is greater than 0
+95 percent confidence interval:
+ 5.489093      Inf
+sample estimates:
+mean of x mean of y 
+11.647059  3.588235 
+\end{Soutput}
+\end{Schunk}
+\normalsize
+What does this mean?
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+Order of arguments matters...\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> t.test(dat$Reference,dat$Restoration,
++ 	alternative='greater',var.equal=T)
+\end{Sinput}
+\end{Schunk}
+\small
+\begin{Schunk}
+\begin{Soutput}
+	Two Sample t-test
+
+data:  dat$Reference and dat$Restoration
+t = -5.3121, df = 32, p-value = 1
+alternative hypothesis: true difference in means is greater than 0
+95 percent confidence interval:
+ -10.62855       Inf
+sample estimates:
+mean of x mean of y 
+ 3.588235 11.647059 
+\end{Soutput}
+\end{Schunk}
+\normalsize
+What does this mean? What happens if we change the alternative argument?
+\end{frame}
+
+%%%%%
+\begin{frame}{Data analysis and hypothesis testing}
+Our results suggest that the abundance of breeding birds at the restoration site is significantly greater than at the reference site
+\vspace{0.5in}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\centerline{\includegraphics[width=0.85\textwidth,trim=0in 1in 0.5in 0.5in]{R_for_data_analysis-box2.pdf}}
+\end{column}
+\begin{column}{0.5\textwidth}
+Our p-value is 4.006e-06, what does this mean?\\~\\ 
+There is a 0.0004006\% chance that our results were observed due to randomness (within the constraints of our test).
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[t]{Data analysis and hypothesis testing}
+Other common tests:\\~\\
+\begin{itemize}
+\itemsep20pt
+\item $\chi^2$ test of independence - chisq.test
+\item analysis of variance - anova or aov
+\item correlations - cor.test or cor
+\item regression - lm or glm 
+\item Much, much more....
+\end{itemize}
+\end{frame}
+
+%%%%%
+\begin{frame}{Data analysis and hypothesis testing}
+One last example... we've used common tests to compare our data to a standard or reference (e.g., mean is zero, differences in means is greater than zero)\\~\\
+What about a more interesting analysis, such as comparison of data over time or relationships between variables?\\~\\
+We'll close by illustrating use of linear regression with our data\\~\\
+This is an evaluation of the mean response of a variable conditional on another, i.e., a predictor
+\end{frame}
+
+
+%%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+Perhaps we expect the abundance of breeding birds to increase at our restoration site over time, let's plot it:\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> plot(Restoration~Year,data=dat)
+\end{Sinput}
+\end{Schunk}
+\vspace{-0.13in}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+The first argument is entered as a `formula' specifying the variables\\~\\
+The data argument specifies location of the variables in the workspace
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{R_for_data_analysis-reg1.pdf}
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+%%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+We can also call the variables directly in the plot function, x variable first, y second:\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> plot(dat$Year,dat$Restoration)
+\end{Sinput}
+\end{Schunk}
+\vspace{-0.13in}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+Note the change of the x and y labels, we can modify these using the xlab and ylab arguments in the plot function\\~\\
+Notice the clear trend...
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{R_for_data_analysis-reg2.pdf}
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+How do we quantify this trend across time? Use the lm function for regression...\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> lm(Restoration~Year,data=dat)
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Soutput}
+Call:
+lm(formula = Restoration ~ Year, data = dat)
+
+Coefficients:
+(Intercept)         Year  
+  -5721.568        2.856  
+\end{Soutput}
+\end{Schunk}
+\vspace{0.2in}
+The abundance increases, on average, by 2.856 birds per year.
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+We can get more information using the summary command 
+\vspace{0.1in}
+\begin{Schunk}
+\begin{Sinput}
+> mod<-lm(Restoration~Year,data=dat)
+> summary(mod)
+\end{Sinput}
+\end{Schunk}
+\scriptsize
+\begin{Schunk}
+\begin{Soutput}
+Call:
+lm(formula = Restoration ~ Year, data = dat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-6.7027 -1.4234  0.1532  1.7207  5.2973 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -5721.5676   860.1976  -6.651 7.72e-06 ***
+Year            2.8559     0.4285   6.665 7.54e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.097 on 15 degrees of freedom
+Multiple R-squared:  0.7476,	Adjusted R-squared:  0.7307 
+F-statistic: 44.42 on 1 and 15 DF,  p-value: 7.544e-06
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+%%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+What does this mean?
+\vspace{0.1in}
+\scriptsize
+\begin{Schunk}
+\begin{Soutput}
+Call:
+lm(formula = Restoration ~ Year, data = dat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-6.7027 -1.4234  0.1532  1.7207  5.2973 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -5721.5676   860.1976  -6.651 7.72e-06 ***
+Year            2.8559     0.4285   6.665 7.54e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.097 on 15 degrees of freedom
+Multiple R-squared:  0.7476,	Adjusted R-squared:  0.7307 
+F-statistic: 44.42 on 1 and 15 DF,  p-value: 7.544e-06
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+
+%%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+How do we plot the model?\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> plot(Restoration~Year, data=dat)
+> abline(reg=mod)
+\end{Sinput}
+\end{Schunk}
+\vspace{-0.3in}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+We tell the abline function to plot our model, named `mod'
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{R_for_data_analysis-reg3.pdf}
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+Can we use our model for prediction?\\~\\
+What are the predicted data for our observation years?\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> predict(mod)
+\end{Sinput}
+\end{Schunk}
+\scriptsize
+\begin{Schunk}
+\begin{Soutput}
+        1         2         3         4         5         6         7         9 
+ 4.423423  4.423423  4.423423  7.279279  7.279279  7.279279 10.135135 10.135135 
+       10        11        12        13        14        15        16        17 
+12.990991 12.990991 12.990991 15.846847 15.846847 15.846847 18.702703 18.702703 
+       18 
+18.702703 
+\end{Soutput}
+\end{Schunk}
+\vspace{0.2in}
+\normalsize
+What about other years not in our dataset?
+\end{frame}
+
+%%%%%
+\begin{frame}[fragile]{Data analysis and hypothesis testing}
+Can we use our model for prediction?\\~\\
+What about predicted abundance for 2011?\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> predict(mod,newdata=data.frame(Year=2011))
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Soutput}
+       1 
+21.55856 
+\end{Soutput}
+\end{Schunk}
+\vspace{0.2in}
+We can expect, on average, 21.56 birds at our restoration sites in 2011 (within the constraints of our model)
+\end{frame}
+
+\section{Conclusion}
+
+%%%%%
+\begin{frame}{Conclusion}
+What we've learned:\\~\\
+\begin{itemize}
+\itemsep20pt
+\item Data organization - read.csv, read.table
+\item Data exploration - head, dim, nrow, ncol, summary, [,], \$, names, subset, mean, range, unique
+\item Data visualization - hist, boxplot, plot, abline
+\item Data analysis and hypothesis testing - t.test, lm, predict\\~\\
+\end{itemize}
+\LARGE
+\centerline{\emph{Questions?}}
+\end{frame}
+
+\end{document}

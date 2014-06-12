@@ -1,0 +1,7 @@
+\beamer@endinputifotherversion {3.10pt}
+\beamer@sectionintoc {1}{Background}{2}{0}{1}
+\beamer@sectionintoc {2}{Data organization}{3}{0}{2}
+\beamer@sectionintoc {3}{Data exploration}{7}{0}{3}
+\beamer@sectionintoc {4}{Data visualization}{15}{0}{4}
+\beamer@sectionintoc {5}{Data analysis and hypothesis testing}{25}{0}{5}
+\beamer@sectionintoc {6}{Conclusion}{46}{0}{6}

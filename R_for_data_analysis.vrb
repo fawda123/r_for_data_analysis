@@ -1,0 +1,15 @@
+\frametitle {Data analysis and hypothesis testing}Can we use our model for prediction?\\~\\
+What about predicted abundance for 2011?\\~\\
+\begin{Schunk}
+\begin{Sinput}
+> predict(mod,newdata=data.frame(Year=2011))
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Soutput}
+       1
+21.55856
+\end{Soutput}
+\end{Schunk}
+\vspace{0.2in}
+We can expect, on average, 21.56 birds at our restoration sites in 2011 (within the constraints of our model)
